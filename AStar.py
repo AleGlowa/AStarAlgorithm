@@ -33,16 +33,16 @@ class Node:
 
     def add_neighbours(self):
         (x, y) = self.pos
-        if x > 1:
+        if x > 1: #and not Node((1, y)).is_obstacle:
             self.neighbours.append(Node((x - 1, y)))
             self.weight = 1
-        if x < squares_amount_on_every_row_and_column:
+        if x < squares_amount_on_every_row_and_column: #and not Node((squares_amount_on_every_row_and_column, y)).is_obstacle:
             self.neighbours.append(Node((x + 1, y)))
             self.weight = 1
-        if y > 1:
+        if y > 1: #and not Node((x, 1)).is_obstacle:
             self.neighbours.append(Node((x, y - 1)))
             self.weight = 1
-        if y < squares_amount_on_every_row_and_column:
+        if y < squares_amount_on_every_row_and_column: #and not Node((x, squares_amount_on_every_row_and_column)).is_obstacle:
             self.neighbours.append(Node((x, y + 1)))
             self.weight = 1
         if x < squares_amount_on_every_row_and_column and y < squares_amount_on_every_row_and_column:
@@ -120,16 +120,11 @@ if end.is_obstacle:
     end.is_obstacle = False
     blocks[end.pos[0] - 1][end.pos[1] - 1].setFill('red')
 
-for i in nodes:
-    for j in i:
-        j.add_neighbours()
-
 def search(start, end):
-    current = start
-    open_nodes.append(current)
+    open_nodes.append(start)
 
     while open_nodes:
-        current = min(open_nodes, key=lambda o: o.f_cost)
+        current = min(open_nodes, key=lambda o: o.f_cost) #if not o.is_obstacle)
 
         if current == end:
             temp = current
@@ -144,6 +139,7 @@ def search(start, end):
         open_nodes.remove(current)
         closed_nodes.append(current)
         blocks[current.pos[0] - 1][current.pos[1] - 1].setFill('orange')
+        current.add_neighbours()
 
         for n in current.neighbours:
             if n not in closed_nodes and not n.is_obstacle:
@@ -154,6 +150,7 @@ def search(start, end):
                     if temp_distance < n.distance:
                         n.distance = temp_distance
                         new_path = True
+
                 else:
                     n.distance = temp_distance
                     new_path = True
@@ -167,11 +164,19 @@ def search(start, end):
 
     raise ValueError('There is no path to the destination!')
 
-
 point = win.getMouse()
 if button.clicked(point):
     path = search(start, end)
 
 print(path)
+for n in nodes:
+    for j in n:
+        if j.is_obstacle:
+            print(j)
+
+for n in path:
+    if n.is_obstacle:
+        print('sprzecznosc ' + str(n))
+
 win.getMouse()
 win.close()
